@@ -1,0 +1,311 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>以Qemu模拟Linux，学习Linux内核 - 五分 - 博客园</title>
+<link type="text/css" rel="stylesheet" href="/bundles/blog-common.css?v=my4FYfT2lmqb3sakS-rxSQYr2TpdJ4R7fpviWLuq5wg1"/>
+<link id="MainCss" type="text/css" rel="stylesheet" href="/skins/coffee/bundle-coffee.css?v=H7P3zU3_M529NtLVh9kKULJaZLDGv9Qz_L_VdgyN1P41"/>
+<link title="RSS" type="application/rss+xml" rel="alternate" href="http://www.cnblogs.com/senix/rss"/>
+<link title="RSD" type="application/rsd+xml" rel="EditURI" href="http://www.cnblogs.com/senix/rsd.xml"/>
+<link type="application/wlwmanifest+xml" rel="wlwmanifest" href="http://www.cnblogs.com/senix/wlwmanifest.xml"/>
+<script src="http://common.cnblogs.com/script/jquery.js" type="text/javascript"></script>  
+<script type="text/javascript">var currentBlogApp = 'senix', cb_enable_mathjax=false;</script>
+<script src="/bundles/blog-common.js?v=_F6vMpUraZDFoT85Xf9mf4IazxZUUUCHJBFoubR7iR01" type="text/javascript"></script>
+</head>
+<body>
+<a name="top"></a>
+
+<!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+	<a id="lnkBlogLogo" href="http://www.cnblogs.com/senix/"><img id="blogLogo" src="/Skins/custom/images/logo.gif" alt="返回主页" /></a>			
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle" href="http://www.cnblogs.com/senix/">五分</a></h1>
+<h2></h2>
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+</div><!--end: header 头部 -->
+
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		<div id="navigator">
+			
+<!--done-->
+			<ul id="navList">
+				<li><a id="MyLinks1_HomeLink" class="menu" href="http://www.cnblogs.com/">博客园</a></li>
+				<li><a id="MyLinks1_IngLink" class="menu" href="http://home.cnblogs.com/ing/">闪存</a></li>
+				<li><a id="MyLinks1_MyHomeLink" class="menu" href="http://www.cnblogs.com/senix/">首页</a></li>
+				<li><a id="MyLinks1_NewPostLink" class="menu" rel="nofollow" href="http://i.cnblogs.com/EditPosts.aspx?opt=1">新随笔</a></li>
+				<li><a id="MyLinks1_ContactLink" accesskey="9" class="menu" rel="nofollow" href="http://space.cnblogs.com/msg/send/%e4%ba%94%e5%88%86">联系</a></li>
+				<li><a id="MyLinks1_Admin" class="menu" rel="nofollow" href="http://i.cnblogs.com/">管理</a></li>
+				<li><a id="MyLinks1_Syndication" class="menu" href="http://www.cnblogs.com/senix/rss">订阅</a>
+				<a id="MyLinks1_XMLLink" class="aHeaderXML" href="http://www.cnblogs.com/senix/rss"><img src="http://www.cnblogs.com/images/xml.gif" alt="订阅" /></a></li>
+			</ul>
+
+
+			<div class="blogStats">
+				
+				
+<!--done-->
+随笔- 8&nbsp;
+文章- 1&nbsp;
+评论- 7&nbsp;
+
+				
+			</div><!--end: blogStats -->
+		</div><!--end: navigator 博客导航栏 -->
+		
+
+<!--done-->
+<div id="topics">
+	<div class = "post">
+		<h1 class = "postTitle">
+			<a id="cb_post_title_url" class="postTitle2" href="http://www.cnblogs.com/senix/archive/2013/02/21/2921221.html">以Qemu模拟Linux，学习Linux内核</a>
+		</h1>
+		<div class="clear"></div>
+		<div class="postBody">
+			<div id="cnblogs_post_body"><p><strong>文章名称：以Qemu模拟Linux，学习Linux内核</strong><br /><strong>作 &nbsp; &nbsp; &nbsp;者：five_cent</strong><br /><strong>文章地址：<a id="Editor_Edit_hlEntryLink" title="view: QEMU" href="http://www.cnblogs.com/senix/archive/2013/02/21/2921221.html" target="_blank">http://www.cnblogs.com/senix/archive/2013/02/21/2921221.html</a></strong><br /><strong>维护日志：2013-02-21     建立文档</strong><br /><strong>    (注：文章参考自http://www.linuxidc.com/Linux/2011-07/39373.htm, 是对该篇文章的一些补充和说明。文章内所使用的环境是Ubuntu 12.04，如果其中遇到编译问题，请自行参考错误说明，配置依赖环境)</strong></p>
+<p><strong>0.准备</strong><br />    我们所有的工作都在指定目录下工作，使用以下变量来代替相关目录。<br />    <strong><span style="color: #ff6600;">$KERNEL &nbsp; &nbsp; 内核工作目录</span></strong><br /><strong><span style="color: #ff6600;">    $LINUX &nbsp; &nbsp; &nbsp; Linux内核源码目录</span></strong><br /><strong><span style="color: #ff6600;">    $BUSYBOX &nbsp;Busybox源码目录</span></strong></p>
+<p><br /><strong>1.编译内核</strong><br />(1)下载合适的内核<br />    到http://www.kernel.org/上下载合适的内核，我选择的是linux-2.6.32，文件名是linux-2.6.32.60.tar.bz2。（选择使用这个版本是因为自己初学，最好使用低版本，防止新版本引入新的模块导致各种编译问题）<br />    复制linux-2.6.32.60.tar.bz2到$KERNEL，并通过以下命令解开文件</p>
+<div class="cnblogs_code">
+<pre>$tar -xf linux-<span style="color: #800080;">2.6</span>.<span style="color: #800080;">32.60</span>.tar.bz2</pre>
+</div>
+<p> 解压的文件保存在$KERNEL目录下的linux-2.6.32.60，为了避免差异化，下文使用$LINUX<br />(2)编译内核<br />    每个内核都可能有自己的编译条件，为了避免差异化，请参考$LINUX/Documentation/HOWTO.以下是我的步骤</p>
+<div class="cnblogs_code">
+<pre><span style="color: #000000;">$make help
+$make i386_defconfig
+$make</span></pre>
+</div>
+<p><strong style="line-height: 1.5;">2.安装qemu</strong></p>
+<p>(1)ubuntu下安装</p>
+<div class="cnblogs_code">
+<pre>$sudo apt-<span style="color: #0000ff;">get</span> install qemu</pre>
+</div>
+<p>我使用这个命令安装的是模拟器是qemu-system-i386和qemu-system-x86_64。因为我之前编译的linux内核是i386的，所以我创建一个软链接。</p>
+<div class="cnblogs_code">
+<pre>$ln -s /usr/bin/qemu-system-i386 /usr/bin/qemu</pre>
+</div>
+<p>(2)源码安装<br />    到http://wiki.qemu.org/Download，下载适合的qemu源码，我下载的是qemu-1.3.1.tar.bz2，拷贝到$KERNEL目录，输入命令解压</p>
+<div class="cnblogs_code">
+<pre>$tar -xf qemu-<span style="color: #800080;">1.3</span>.<span style="color: #800080;">1</span>.tar.bz2</pre>
+</div>
+<p>然后编译</p>
+<div class="cnblogs_code">
+<pre>$./<span style="color: #000000;">configure
+$make
+$make install</span></pre>
+</div>
+<p><br /><strong>3.编译busybox</strong><br />(1)下载busybox 源码<br />    到http://www.busybox.net/下载合适的busybox源码，我下载的是busybox-1.20.0.tar.bz2，拷贝到$KERNEL目录，输入命令解压</p>
+<div class="cnblogs_code">
+<pre>$tar -xf busybox-<span style="color: #800080;">1.20</span>.<span style="color: #800080;">0</span>.tar.bz2</pre>
+</div>
+<p>(2)编译busybox</p>
+<div class="cnblogs_code">
+<pre><span style="color: #000000;">$make defconfig
+$make menuconfig</span></pre>
+</div>
+<p><span style="line-height: 1.5;">因为Linux运行环境当中是不带动态库的，所以必须以静态方式来编译BusyBox。修改</span></p>
+<p><span style="color: #ff0000;"><strong> Busybox Settings ---&gt;</strong></span><br /><span style="color: #ff0000;"><strong>&nbsp; &nbsp; Build Options ---&gt;</strong></span><br /><span style="color: #ff0000;"><strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[*] Build BusyBox as a static binary(no shared libs)</strong></span></p>
+<div class="cnblogs_code">
+<pre><span style="color: #000000;">$make 
+$make install</span></pre>
+</div>
+<p><span style="line-height: 1.5;">编译过程当中可能遇到</span></p>
+<p><strong><span style="color: #ff0000;"> inetd.c:(.text.prepare_socket_fd+0x8a): undefined reference to `bindresvport'</span></strong></p>
+<div class="cnblogs_code">
+<pre>$make menuconfig</pre>
+</div>
+<p> 去掉不需要的功能，其它模块编译错误做法类似<br />    <strong><span style="color: #ff0000;">Networking Utilities  ---&gt; </span></strong><br /><strong><span style="color: #ff0000;">&nbsp; &nbsp; [ ] inetd </span></strong></p>
+<p><strong>4.通过Qemu模拟Linux</strong><br />(1)编写initrd启动脚本</p>
+<div class="cnblogs_code">
+<pre>$cd $BUSYBOX/<span style="color: #000000;">_install
+<span style="color: #99cc00;">#创建系统运行时的必须目录，其中，</span></span><span style="color: #99cc00;">/proc用于挂载proc系统，/sys用于挂载sys系统，dev用于mdev创建设备节点，etc/</span><span style="color: #000000;"><span style="color: #99cc00;">init.d为放置busybox启动脚本的目录</span>
+$mkdir proc sys dev etc etc</span>/init.d</pre>
+</div>
+<div class="cnblogs_code">
+<pre>$vim $BUSYBOX/_install/etc/init.d/rcS</pre>
+</div>
+<p>输入</p>
+<div class="cnblogs_code">
+<pre><span style="color: #800000;">#!/bin/</span><span style="color: #000000;"><span style="color: #800000;">sh</span>
+<span style="color: #99cc00;">#将proc文件系统挂载到</span></span><span style="color: #99cc00;">/proc目录，因为很多应用程序会使用到/</span><span style="color: #000000;"><span style="color: #99cc00;">proc中的信息，不挂载会导致各种异常</span>
+mount </span>-t proc none /<span style="color: #000000;">proc
+<span style="color: #99cc00;">#将sys文件系统挂载到</span></span><span style="color: #99cc00;">/sys目录，因为很多应用程序会使用到/</span><span style="color: #000000;"><span style="color: #99cc00;">sys中的信息，不挂载会导致各种异常</span>
+mount </span>-t sysfs none /<span style="color: #000000;">sys
+<span style="color: #99cc00;">#mdev是busybox自带的一个udev，用于系统启动和热插拔或动态加载驱动程序时，自动产生设备节点，这句话如果不加上则需要手动mknod来挂载设备节点
+</span></span>/sbin/mdev -s</pre>
+</div>
+<div class="cnblogs_code">
+<pre>$chmod +x $BUSYBOX/_install/etc/init.d/rcS</pre>
+</div>
+<p><span style="color: #ff0000;"><strong><span style="line-height: 1.5;">(注：为什么编辑这个文件呢？因为我们将使用busybox的init作为我们的Linux启动的第一个进程，而busybox的init所使用的启动脚本就是/etc/init.d/rcS，该路径被声明在$BUSYBOX/init/init.c当中)</span></strong></span></p>
+<p>(2)编写构建initrd镜像脚本</p>
+<div class="cnblogs_code">
+<pre>$vim $KERNEL/build-initrd.sh</pre>
+</div>
+<p>输入</p>
+<div class="cnblogs_code">
+<pre><span style="color: #800000;">#!/bin/</span><span style="color: #000000;"><span style="color: #800000;">sh</span><br /><span style="color: #99cc00;">#定义变量</span>
+KERNEL</span>=<span style="color: #000000;">$(pwd)
+BUSYBOX</span>=$(find busybox* -maxdepth <span style="color: #800080;">0</span><span style="color: #000000;">)
+LINUX</span>=$(find linux* -maxdepth <span style="color: #800080;">0</span><span style="color: #000000;">)<br /><span style="color: #99cc00;">#通过cpio创建镜像</span>
+cd $BUSYBOX</span>/<span style="color: #000000;">_install
+find . </span>| cpio -o --format=newc &gt; $KERNEL/<span style="color: #000000;">rootfs.img
+cd $KERNEL<br /><span style="color: #99cc00;">#通过gzip创建zip镜像</span>
+gzip </span>-c rootfs.img &gt; rootfs.img.gz</pre>
+</div>
+<div class="cnblogs_code">
+<pre>$chmod +x build-initrd.sh</pre>
+</div>
+<p><span style="line-height: 1.5;">(3)编写快速运行脚本</span></p>
+<div class="cnblogs_code">
+<pre>$vim $KERNEL/run.sh</pre>
+</div>
+<div class="cnblogs_code">
+<pre>#!/bin/<span style="color: #000000;">sh<br /><span style="color: #99cc00;">#定义变量</span>
+LINUX</span>=$(find linux* -maxdepth <span style="color: #800080;">0</span><span style="color: #000000;">)<br /><span style="color: #99cc00;">#启动qemu</span>
+qemu </span>-kernel $LINUX/arch/i386/boot/bzImage -initrd rootfs.img.gz -append <span style="color: #800000;">"</span><span style="color: #800000;">root=/dev/ram rdinit=sbin/init noapic</span><span style="color: #800000;">"</span></pre>
+</div>
+<p><strong><img src="http://images.cnitblog.com/blog/316212/201302/22104719-c89f44b60d26403d85f9ff76bd828c26.png" alt="" /></strong></p>
+<p><strong>5.其它说明</strong><br /><strong><span style="color: #ff0000;">镜像文件</span></strong><br />vmlinux &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 编译出来的最原始的内核文件，未压缩<br />zImage &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;由mlinux经过gzip压缩后的文件<br />bzImage    big zImage。 zImage解压缩内核到低端内存（640K），bzImage解压缩内核到高端内存（1M以上）。如果内核比较小，采用zImage或者bzImage都行，如果比较大应该用bzImage。<br />uImage &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; U-boot专用的映像文件，它是在zImage之前加上一个长度为0x40的tag。<br />vmlinuz &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 是zImage/bzImage文件的拷贝或者是指向zImage/bzImage的链接。<br />initrd &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;initial ramdisk。linux系统引导过程当中挂载的一个临时根文件系统，被挂载于/dev/ram，它用于支持Linux第二阶段的引导过程。它是使用gzip进行压缩的cpio文件。</p>
+<p><strong><span style="color: #ff0000;">QEMU</span></strong><br />qemu-system-i386 &nbsp; &nbsp; &nbsp; &nbsp;QEMU 模拟i386指令CPU的模拟器<br />qemu-system-x86_64 &nbsp; QEMU 模拟x86_64指令CPU的模拟器<br />qemu -kernel &nbsp; 参数，使用bzimage作为linux内核<br />qemu -initrd &nbsp; &nbsp;参数，指定initrd镜像<br />qemu -append 参数，附加内核启动参数</p>
+<p><span style="color: #ff0000;"><strong>内核启动参数</strong></span><br />root= &nbsp; &nbsp; &nbsp; 使用哪个设备作为根文件系统。<br />rdinit= &nbsp; &nbsp; &nbsp;内核加载完毕之后，即运行initrd中指定路径的程序，来创建linux的第一个进程。<br />init= &nbsp; &nbsp; &nbsp; &nbsp; 内核加载完毕之后，即运行initramfs中指定路径的程序，来创建linux的第一个进程。<br />noapic &nbsp; &nbsp; &nbsp;apic，高级可编程中断控制器。这里用于防止发生MP-BIOS BUG 8254 timer not connected。</p>
+<p><strong>参考资料</strong><br />1.Qemu官方网站                http://www.qemu.org<br />2.简单用Qemu模拟linux运行环境 http://www.linuxidc.com/Linux/2011-07/39373.htm<br />3.initrd 内核描述文档         http://lxr.linux.no/linux/Documentation/initrd.txt<br />4.initrd和initramfs           http://blog.chinaunix.net/uid-25888519-id-3078218.html</p></div><div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+<div id="BlogPostCategory"></div>
+<div id="EntryTag"></div>
+<div id="blog_post_info">
+</div>
+<div class="clear"></div>
+<div id="post_next_prev"></div>
+</div>
+
+
+		</div>
+		<div class = "postDesc">posted @ <span id="post-date">2013-02-21 22:17</span> <a href='http://www.cnblogs.com/senix/'>五分</a> 阅读(<span id="post_view_count">...</span>) 评论(<span id="post_comment_count">...</span>)  <a href ="http://i.cnblogs.com/EditPosts.aspx?postid=2921221" rel="nofollow">编辑</a> <a href="#" onclick="AddToWz(2921221);return false;">收藏</a></div>
+	</div>
+	<script type="text/javascript">var allowComments=true,isLogined=false,cb_blogId=109866,cb_entryId=2921221,cb_blogApp=currentBlogApp,cb_blogUserGuid='d6273817-79ae-e011-8673-842b2b196315',cb_entryCreatedDate='2013/2/21 22:17:00';loadViewCount(cb_entryId);</script>
+	
+</div><!--end: topics 文章、评论容器-->
+<a name="!comments"></a><div id="blog-comments-placeholder"></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+<div id="comment_form" class="commentform">
+<a name="commentform"></a>
+<div id="divCommentShow"></div>
+<div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" id="lnk_RefreshComments" onclick="return RefreshCommentList();">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+<div id="comment_form_container"></div>
+<div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+<div id="site_nav_under"><a href="http://www.cnblogs.com/" target="_blank" title="开发者的网上家园">博客园首页</a><a href="http://q.cnblogs.com/" target="_blank" title="程序员问答社区">博问</a><a href="http://news.cnblogs.com/" target="_blank" title="IT新闻">新闻</a><a href="http://home.cnblogs.com/ing/" target="_blank">闪存</a><a href="http://job.cnblogs.com/" target="_blank">程序员招聘</a><a href="http://kb.cnblogs.com/" target="_blank">知识库</a></div>
+<div id="opt_under_post"></div>
+<script type="text/javascript">
+    var enableGoogleAd = canShowAdsense(); var googletag = googletag || {}; googletag.cmd = googletag.cmd || [];
+    fixPostBodyFormat();
+</script>
+<div id="ad_under_post_holder">
+<script type='text/javascript'>
+    var googletag = googletag || {};
+    googletag.cmd = googletag.cmd || [];
+    (function () {
+        if (enableGoogleAd) {
+            var gads = document.createElement('script');
+            gads.async = true;
+            gads.type = 'text/javascript';
+            var useSSL = 'https:' == document.location.protocol;
+            gads.src = (useSSL ? 'https:' : 'http:') + '//www.googletagservices.com/tag/js/gpt.js';
+            var node = document.getElementsByTagName('script')[0];
+            node.parentNode.insertBefore(gads, node);
+        }
+    })();
+</script>
+<script type='text/javascript'>
+    try {
+        if (enableGoogleAd) {
+            googletag.cmd.push(function () {
+                googletag.defineSlot('/1090369/cnblogs_blogpost_C1_sitehome', [300, 250], 'div-gpt-ad-1346480159711-0').addService(googletag.pubads());
+                googletag.defineSlot('/1090369/cnblogs_blogpost_C2', [468, 60], 'div-gpt-ad-1410860226396-0').addService(googletag.pubads());
+                googletag.pubads().enableSingleRequest();
+                googletag.enableServices();
+            });
+        };
+    } catch (e) { }
+</script>
+<div id="google_ad_c1" class="c_ad_block">
+    <div id='div-gpt-ad-1346480159711-0' style='width:300px; height:250px;'>
+    <script type='text/javascript'>
+        try {
+            if (enableGoogleAd) {
+                googletag.cmd.push(function () { googletag.display('div-gpt-ad-1346480159711-0'); });            
+            } else {
+                $('#div-gpt-ad-1346480159711-0').hide();
+            }
+    } catch (e) { }
+    </script>
+    </div>
+</div>
+</div>
+<div id="under_post_news"></div>
+<div id="google_ad_c2" class="c_ad_block">
+<div id='div-gpt-ad-1410860226396-0' style='width:468px; height:60px;'>
+<script type='text/javascript'>
+try {
+    if (enableGoogleAd) {
+        googletag.cmd.push(function () { googletag.display('div-gpt-ad-1410860226396-0'); });
+    } else {
+        $('#div-gpt-ad-1346480159711-0').hide();
+    }
+} catch (e) { }
+</script>
+</div>
+</div>
+<div id="under_post_kb"></div>
+<div id="HistoryToday" class="c_ad_block"></div>
+<script type="text/javascript">
+$(function () {
+    loadNewsAndKb();
+    loadBlogSignature();
+    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate);
+    loadOptUnderPost();
+    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    setTimeout(function () { incrementViewCount(cb_entryId); }, 200);
+});
+</script>
+</div>
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+
+	<div id="sideBar">
+		<div id="sideBarMain">
+			
+<!--done-->
+<div class="newsItem">
+<h3 class="catListTitle">公告</h3>
+	<div id="blog-news"></div><script type="text/javascript">loadBlogNews();</script>
+</div>
+
+			<div id="calendar"><div id="blog-calendar" style="display:none"></div><script type="text/javascript">loadBlogDefaultCalendar();</script></div>
+			
+			<DIV id="leftcontentcontainer">
+				<div id="blog-sidecolumn"></div><script type="text/javascript">loadBlogSideColumn();</script>
+			</DIV>
+			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		
+<!--done-->
+Copyright &copy;2014 五分
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+</body>
+</html>

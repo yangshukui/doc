@@ -1,0 +1,126 @@
+qemu两种上网方式：
+　　
+　　user mode network :
+　　
+　　这种方式实现虚拟机上网很简单，类似vmware里的nat，qemu启动时加入-user-net参数，虚拟机里使用dhcp方式，即可与互联网通信，但是这种方式虚拟机与主机的通信不方便。
+　　
+　　tap/tun network :
+　　
+　　这种方式要比user mode复杂一些，但是设置好后 虚拟机<-->互联网 虚拟机<-->主机 通信都很容易
+　　
+　　这种方式设置上类似vmware的host-only,qemu使用tun/tap设备在主机上增加一块虚拟网络设备(tun0),然后就可以象真实网卡一样配置它.
+　　
+　　首先内核中支持tap/tuns设备：
+　　
+　　Device Drivers --->
+　　Networking support --->
+　　[M] Universal TUN/TAP device driver support
+　　
+　　如果当前内核没有支持，可以重新只编译相应模块加入，方法很简单：
+　　
+　　将当前内核配置文件cp到内核源码目录下:
+　　
+　　[root@LFS ~]#cp /boot/config-[kernel-version] /usr/src/linux
+　　[root@LFS ~]#cd /usr/src/linux
+　　
+　　配置内核，将TUN/TAP选择模块(M)，如上所示:
+　　
+　　[root@LFS ~]#make menuconfig
+　　
+　　重新只编译模块(M),不编译核心(*)支持的东东:
+　　
+　　[root@LFS ~]#make modules
+　　
+　　编译好后在/usr/src/linux/drivers/net下可以找到tun.ko:
+　　
+　　[root@LFS net]#ls -l /usr/src/linux/drivers/net/tun.ko
+　　-rw-r--r-- 1 root root 11116 Mar 23 20:29 /usr/src/linux/drivers/net/tun.ko
+　　[root@LFS net]#
+　　
+　　将它cp到当前内核的模块目录的相应位置：
+　　
+　　[root@LFS net]#cp /usr/src/linux/drivers/net/tun.ko /lib/modules/`uname -r`/kernel/drivers/net
+　　
+　　重新建立模块依赖关系：
+　　
+　　[root@LFS net]#depmod
+　　
+　　现在就可以加载它了 :
+　　
+　　[root@LFS net]#modprobe tun
+　　
+　　检查一下：
+　　
+　　[root@LFS net]#lsmod |grep tun
+　　tun 8704 0
+　　[root@LFS net]#
+　　
+　　OK. 成功不重新编译整个内核加入特殊模块支持
+　　
+　　如果你的xx卡不被内核支持，又可以编译成模块，自己怕重新编译内核后出问题就可以用这个办法只编译自己需要的模块，然后手动安装到相应位置，再加载它。
+　　
+　　这样编译速度要也比编译整个内核快，不会对系统有任何损害，就可以使用上XX卡喽。^_^
+　　
+　　要注意三点：
+　　
+　　1.内核源码必须与当前内核版本完全一致，否则编译出的模块是不能用的。
+　　
+　　2.注意只make modules(编译模块),没有make modules_install(自动安装模块到/lib/modules下)
+　　
+　　3.加载新编译的模块前必须先运行depmod，否则modprobe找不到它
+　　
+　　其实使用当前内核配置文件(/boot/config-[kernel-version]),只加入自己需要的模块，不做任何其他改，make modules_install应该也不会有问题的。
+　　
+　　不过最稳妥的办法还是手动安装它,控制权在自己手里更踏实嘛 :-)
+　　
+　　OK,转回qemu上网问题
+　　
+　　如果使用udev管理设备(通常2.6.x内核的发行版都已经使用udev),当modprobe tun后就会自动建立/dev/net目录，并创建出tun设备，做好相关链接：
+　　
+　　[root@LFS net]#ls -l /dev/net/tun
+　　lrwxrwxrwx 1 root root 6 Mar 25 15:35 /dev/net/tun -> ../tun
+　　[root@LFS net]#
+　　
+　　如果很不幸，你没看到它，就需要自己手动做这些工作了
+　　
+　　[root@LFS ~]#mkdir /dev/net
+　　[root@LFS ~]#mknod /dev/net/tun c 10 200
+　　
+　　OK,相关设备已经准备好了，还需要一个tun/tap的初始化脚本 :
+　　
+　　/etc/qemu-ifup :
+　　#!/bin/sh
+　　/sbin/ifconfig $1 172.20.0.1
+　　
+　　再给予qemu-ifup x执行权限放在/etc下就可以了。
+　　
+　　这个脚本只能root用户执行，如果需要普通用户使用qemu，就需要改成sudo /sbin/ifconfig .....再设置sudo相关权限。
+　　
+　　启动qemu后，它会在主机上增加一块虚拟网络设备(tun0):
+　　
+　　[root@LFS ~]#ifconfig tun0
+　　tun0 Link encap:Ethernet HWaddr 0A3:8A:5D:97:CD
+　　inet addr:172.20.0.1 Bcast:172.20.255.255 Mask:255.255.0.0
+　　UP BROADCAST RUNNING MULTICAST MTU:1500 Metric:1
+　　RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+　　TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+　　collisions:0 txqueuelen:500
+　　RX bytes:0 (0.0 b) TX bytes:0 (0.0 b)
+　　[root@LFS ~]#
+　　
+　　现在就可以启动qemu配置虚拟机网络参数了，和vmware host-only一样:
+　　
+　　ip与tun0相同网段,gateway为tun0 ip 其余参数与tun0相同,dns与主机相同：
+　　
+　　tun0 : ip :172.20.0.1 broadcast:172.20.255.255 netmask :255.255.0.0
+　　qemu : ip :172.20.0.100 broadcast:172.20.255.255 netmask :255.255.0.0 gateway:172.20.0.1
+　　
+　　与host-only一样，这样只实现了虚拟机<---->主机间通信,还需要设置router,nat才可以连上互联网
+　　
+　　[root@LFS ~]#echo 1 > /proc/sys/net/ipv4/ip_forward
+　　[root@LFS ~]#iptables -t nat -A POSTROUTING -o eth0 -s 172.20.0.0/24 -j MASQUERADE
+　　[root@LFS ~]#
+　　
+　　OK，虚拟机<--->主机 虚拟机<---->互联网通信 都完成啦
+　　
+　　快去做网络实验吧 ^_^
