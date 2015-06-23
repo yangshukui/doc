@@ -35,7 +35,7 @@ Docker使用5个命名空间来改变系统的进程：PID、Network、Mount、U
  docker -d -D --selinux-enabled=true
  ```
  
-下面的两个例子，一个是能成功启动container，一个不能成功启动Container，通过二者传入的不同参数和最终的不同结果的对比，可以看到selinux起到的作用。
+下面的两个例子，一个是能成功启动container，一个不能成功启动container，通过二者传入的不同参数和最终的不同结果的对比，可以看到selinux起到的作用。
 
 运行container，role设置成guest_r，启动不成功
 ```
@@ -216,12 +216,12 @@ root@779eff647701:/#
 * https://github.com/docker/libcontainer/pull/633
 
 #### 3.4.1	docker 使用lxc driver ，使用seccomp
-1.首先需要安装lxc (ubuntu上直接apt-get  install  lxc)
-2.生成lxc seccomp配制文件; docker/contrib目录下提供相关的脚本：
+##### 1.首先需要安装lxc (ubuntu上直接apt-get  install  lxc)
+##### 2.生成lxc seccomp配制文件; docker/contrib目录下提供相关的脚本：
 ./mkseccomp.pl < mkseccomp.sample > seccomp.conf
-3.启动daemon
+##### 3.启动daemon
 docker -d -D -e lxc
-4．启动容器
+##### 4．启动容器
 docker run -ti --rm  --lxc-conf lxc.seccomp=seccomp.conf  ubuntu /bin/bash
 #### 3.4.2	docker 使用native driver ，使用seccomp
 目前docker中尚没有接口，可以使用直接使用seccomp
